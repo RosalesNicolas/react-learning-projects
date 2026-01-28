@@ -1,0 +1,31 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`MyAwesomeApp > should match snapshot 1`] = `
+<div>
+  <div>
+    <h1>
+      Nicolas
+    </h1>
+    <h3>
+      Rosales
+    </h3>
+    <p>
+      72
+    </p>
+    <p
+      class="mi-clase-favorita"
+    >
+      Élder Ring, God of War, Halo
+    </p>
+    <h1>
+      Activo
+       
+    </h1>
+    <p
+      style="background-color: orange; color: blue; padding: 10px; border-radius: 10px; margin-top: 40px;"
+    >
+      {"barrio":"Alto Alberdi","ciudad":"Córdoba"}
+    </p>
+  </div>
+</div>
+`;
