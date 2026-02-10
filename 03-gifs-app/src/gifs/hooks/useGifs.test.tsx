@@ -1,5 +1,5 @@
 import { act, render, renderHook, waitFor } from "@testing-library/react";
-import { describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 import { useGifs } from "./useGifs";
 import { getGifsByQuery } from '../actions/get-gifs-by-query.action';
 
@@ -10,7 +10,9 @@ vi.mock('../actions/get-gifs-by-query.action', () => ({
 
 describe('useGifs', () => {
     const { result } = renderHook( () => useGifs() );
-    
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
     
     test('should return default values and methods', () => {
         
@@ -45,6 +47,17 @@ describe('useGifs', () => {
             console.log(result.current.gifs);
         }
     )});
-
+       
+    test('should return an empty list of gifs and not call API', async () => {
+        // const { result } = renderHook( () => useGifs() );
+        console.log(result.current)
+        await act(async () => {
+            await result.current.handleSearch("");
+            await result.current.handleSearch(" ");
+        });
+        expect(getGifsByQuery).not.toHaveBeenCalled();
+        expect(result.current.previousTerms).toHaveLength(0);
+        expect(result.current.gifs).toHaveLength(0);
+    });
 
 });
