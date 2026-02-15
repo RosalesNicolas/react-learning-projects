@@ -1,11 +1,13 @@
-import { act, render, renderHook, waitFor } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { useGifs } from "./useGifs";
-import { getGifsByQuery } from '../actions/get-gifs-by-query.action';
+import * as gifActions from '../actions/get-gifs-by-query.action';
 
 vi.mock('../actions/get-gifs-by-query.action', () => ({
   getGifsByQuery: vi.fn(),
 }));
+
+
 
 
 describe('useGifs', () => {
@@ -35,7 +37,7 @@ describe('useGifs', () => {
             height: 800,
         }));
         
-        vi.mocked(getGifsByQuery).mockResolvedValue(mockGifs);
+        vi.mocked(gifActions.getGifsByQuery).mockResolvedValue(mockGifs);
         
         const { result } = renderHook( () => useGifs() );
         
@@ -56,7 +58,7 @@ describe('useGifs', () => {
             await result.current.handleSearch("");
             await result.current.handleSearch(" ");
         });
-        expect(getGifsByQuery).not.toHaveBeenCalled();
+        expect(gifActions.getGifsByQuery).not.toHaveBeenCalled();
         expect(result.current.previousTerms).toHaveLength(0);
         expect(result.current.gifs).toHaveLength(0);
     });
@@ -73,7 +75,7 @@ describe('useGifs', () => {
         await act(async () => {
             await result.current.handleSearch("Goku");
         });
-        expect(getGifsByQuery).toHaveBeenCalledTimes(1);
+        expect(gifActions.getGifsByQuery).toHaveBeenCalledTimes(1);
         expect(result.current.previousTerms).toHaveLength(1);
         expect(result.current.previousTerms[0]).toBe('goku');
     });
@@ -100,8 +102,8 @@ describe('useGifs', () => {
             await result.current.handleSearch("Goku");
         });
         
-        expect(getGifsByQuery).toHaveBeenCalledTimes(1);
-        expect(getGifsByQuery).toHaveBeenCalledWith("goku");
+        expect(gifActions.getGifsByQuery).toHaveBeenCalledTimes(1);
+        expect(gifActions.getGifsByQuery).toHaveBeenCalledWith("goku");
 
         await waitFor(() => {
             expect(result.current.gifs).toHaveLength(10);
@@ -114,11 +116,23 @@ describe('useGifs', () => {
         await waitFor(() => {
             expect(result.current.gifs).toHaveLength(10);
         }); 
-        expect(getGifsByQuery).toHaveBeenCalledTimes(1);
-
-
+        expect(gifActions.getGifsByQuery).toHaveBeenCalledTimes(1);
     });
 
+    test( 'should return a list off gifs from cache', async () => {
+        const { result } = renderHook( () => useGifs() );
+        await act(async () => {
+            await result.current.handleTermClicked("goku");
+        });
+
+        expect(result.current.gifs.length).toBe(10);
+        
+        vi.spyOn(gifActions, 'getGifsByQuery')
+        .mockRejectedValue(new Error('this is my custom error'));
+        
+        expect(result.current.gifs.length).toBe(10);
+
+    });
 
 
 });
